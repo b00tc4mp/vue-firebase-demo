@@ -1,5 +1,5 @@
 var SignIn = {
-    template: '<section><button v-on:click="signIn">Sign in with Google</button></section>',
+    template: '<main><button v-on:click="signIn">Sign in with Google</button></main>',
     methods: {
         signIn: function () {
             signIn(function (error) {
@@ -13,8 +13,38 @@ var SignIn = {
 
 var Home = {
     props: ['name', 'photo'],
-    template: '<main><h2>Welcome, {{ name }}!</h2><img crossorigin="anonymous" v-bind:src="photo"></main>'
+    template: '<main><welcome v-bind:name="name" v-bind:photo="photo"/><button v-if="isSignedIn()" v-on:click="signOut">Sign Out</button><comments/></main>',
+    methods: {
+        isSignedIn: isSignedIn,
+        signOut: function () {
+            signOut(function () {
+                router.push({ name: 'login' })
+            })
+        }
+    }
 }
+
+Vue.component('welcome', {
+    props: ['name', 'photo'],
+    template: '<section><h2>Welcome, {{ name }}!</h2><img crossorigin="anonymous" v-bind:src="photo"></section>'
+})
+
+Vue.component('comments', {
+    template: '<section><h2>Leave a note</h2><form v-on:submit="addNote"><input type="text" name="subject" placeholder="subject"><textarea name="body" placeholder="body" /><button>Add</button></form></section>',
+    methods: {
+        addNote: function(event) {
+            event.preventDefault()
+
+            var form = event.target
+
+            var subject = form.subject.value
+            var body = form.body.value
+
+            // TODO write this note in firebase
+            console.log(subject, body)
+        }
+    }
+})
 
 var routes = [
     { name: 'login', path: '/login', component: SignIn },
@@ -37,17 +67,6 @@ router.beforeEach(function (to, from, next) {
 })
 
 var App = {
-    template: '<main><h1>Hello, Vue-Firebase!</h1><button v-if="isSignedIn()" v-on:click="signOut">Sign Out</button><router-view></router-view></main>',
-    router,
-    data: {
-        user: null
-    },
-    methods: {
-        isSignedIn: isSignedIn,
-        signOut: function () {
-            signOut(function () {
-                router.push({ name: 'login' })
-            })
-        }
-    }
+    template: '<div><header><h1>Hello, Vue-Firebase!</h1></header><router-view/></div>',
+    router
 }
